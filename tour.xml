@@ -21,7 +21,8 @@
 
 		<style name="popup" type="text" autoalpha="true" alpha="1"/>
 	
-<action name="showInfoHover">
+<action name="showInfoHover" >
+	
 	if(%1,
 		def(linkedScene, string, get(hotspot[get(name)].linkedscene));  // Thay thế bằng giá trị thực tế
 
@@ -33,7 +34,8 @@
 		
 		<!-- Tạo nội dung HTML -->
 		def(htmlContent, string,
-			calc('<div style="display:flex; align-items:center; background-color:#F9FAFB; border-radius:10px; box-shadow:0 4px 8px rgba(0, 0, 0, 0.1); padding:15px; max-width:500px; margin:auto; font-family:Arial, sans-serif;">' +
+		 
+		calc('<div style="display:flex; align-items:center; background-color:#F9FAFB; border-radius:10px; box-shadow:0 4px 8px rgba(0, 0, 0, 0.1); padding:15px; max-width:500px; margin:auto; font-family:Arial, sans-serif;">' +
 			'<img src="' + imageSrc + '" style="width:100px;height:auto;border-radius:8px;margin-right:15px;"/>' +
 			'<div style="display:flex; flex-direction:column;">' +
 			'<div style="font-size:18px; font-weight:bold; color:#333; margin-bottom:5px;"> %2</div>' +
@@ -41,6 +43,7 @@
 			'</div>' +
 			'</div>')
 			);
+			
 			addhotspot(popup); 
 			copy(pu, hotspot[popup]); 
 			pu.loadstyle(popup);
@@ -111,7 +114,7 @@
 		</image>
 
 		<hotspot name="hotspot1" ath="12.338" atv="-9.193" style="skin_hotspotstyle_map"  onclick="showInfoClick('qwe','asd','zxc','qwe');" />
-		<hotspot name="hotspot2" style="polygon_hotspotstyle" linkedscene="scene_KCN-231_1724559193268_360image2" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);">
+		<hotspot name="hotspot2" style="polygon_hotspotstyle" linkedscene="scene_KCN-231_1724559193268_360image2" onhover="showInfoHover(true, 'quang123');" >
 			<point ath="-39.69553330278575" atv="-7.42086871406623"/>
 			<point ath="-15.013325028807799" atv="-6.23638979247658"/>
 			<point ath="-16.888906632983264" atv="17.27812543657331"/>

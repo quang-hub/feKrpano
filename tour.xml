@@ -47,7 +47,7 @@
 			
 			if(hotspot[get(name)].ath,
 				set(pu, ath=calc(hotspot[get(name)].ath), atv=calc(hotspot[get(name)].atv), ox=0, oy=-100); 
-			, set(pu, ath=calc(hotspot[get(name)].point[0].ath), atv=calc(hotspot[get(name)].point[0].atv), ox=0, oy=-100); 
+			, set(pu, ath=calc(hotspot[get(name)].point[0].ath + 10), atv=calc(hotspot[get(name)].point[0].atv), ox=0, oy=-100); 
 			);
 			set(pu.html, get(htmlContent)); 
 			tween(pu.alpha, 1);
@@ -64,7 +64,7 @@
 		def(displayInfo, string,
 		 calc('
 		 <div style="display: flex; flex-direction: column; align-items: flex-start; padding:20px">
-			 <div onclick="krpano.call(\'close\')" style="position:absolute; top:10px; right:10px; cursor:pointer; font-size:18px; font-weight:bold; color:#FF0000;">
+			 <div onclick="showInfoHover(false);" style="position:absolute; top:10px; right:10px; cursor:pointer; font-size:18px; font-weight:bold; color:#FF0000;">
 				×
 			</div>
 			<h1 style="font-size:20px; color:#333; margin-bottom:20px;">Thông Tin Chi Tiết</h1>
@@ -78,7 +78,6 @@
 			<label style="font-size:16px; margin-bottom:10px;">Ghi chú:</label>
 			<div style="font-size:14px;">Đây là ghi chú chi tiết về người dùng.</div>
 		</div>'));
-
 		
 		// Add and configure the hotspot
 		addhotspot(popup); 
@@ -111,7 +110,7 @@
 			<cube url="panos/KCN-231_1724559193267_360Image1.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024"/>
 		</image>
 
-		<hotspot name="hotspot1" ath="12.338" atv="-9.193" style="skin_hotspotstyle_map" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3"/>
+		<hotspot name="hotspot1" ath="12.338" atv="-9.193" style="skin_hotspotstyle_map"  onclick="showInfoClick('qwe','asd','zxc','qwe');" />
 		<hotspot name="hotspot2" style="polygon_hotspotstyle" linkedscene="scene_KCN-231_1724559193268_360image2" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);">
 			<point ath="-39.69553330278575" atv="-7.42086871406623"/>
 			<point ath="-15.013325028807799" atv="-6.23638979247658"/>
@@ -128,7 +127,7 @@
 	<hotspot name="qweqwe1223" onclick="skin_loadscene(scene_KCN-231_1724559193268_360image3,OPENBLEND(0.5, 0.0, 0.75, 0.05, linear));trace('ádsa')" linkedScene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);">
 		<point ath="-89.63744125870943" atv="-3.9874260931900407"/><point ath="-89.1681237108919" atv="8.109247193007986"/><point ath="-70.34174821153545" atv="2.009428684741371"/>
 	</hotspot>
-<hotspot name="sadsa" style="skin_hotspotstyle" ath="94.52181846361574" atv="-0.34380714781423166" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);"/>
+<hotspot name="sadsa" style="skin_hotspotstyle" ath="94.52181846361574" atv="-0.34380714781423166" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3" />
 <hotspot name="sadsa1" style="polygon_hotspotstyle" linkedscene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);"><point ath="-161.93238567670278" atv="-5.645408202155757"/><point ath="-162.3023721846136" atv="6.205923222343907"/><point ath="-146.26544067514376" atv="6.8529705781504875"/><point ath="-146.0585605458947" atv="-5.865434891878612"/></hotspot></scene>
 
 	<scene name="scene_KCN-231_1724559193268_360image2" title="KCN-231_1724559193268_360image2" onstart="" thumburl="panos/KCN-231_1724559193268_360image2.tiles/thumb.jpg" lat="" lng="" alt="" heading="">

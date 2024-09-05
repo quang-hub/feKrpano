@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<krpano version="1.21" title="Virtual Tour">
+
+	<include url="skin/vtourskin.xml"/>
+
+	<!-- customize skin settings: maps, gyro, webvr, thumbnails, tooltips, layout, design, ... -->
+	<skin_settings maps="false" maps_type="google" maps_bing_api_key="" maps_google_api_key="" maps_zoombuttons="false" maps_loadonfirstuse="true" gyro="true" gyro_keeplookingdirection="false" webvr="true" webvr_keeplookingdirection="true" webvr_prev_next_hotspots="true" autotour="false" littleplanetintro="false" followmousecontrol="false" title="true" thumbs="true" thumbs_width="120" thumbs_height="80" thumbs_padding="10" thumbs_crop="0|40|240|160" thumbs_opened="false" thumbs_text="false" thumbs_dragging="true" thumbs_onhoverscrolling="false" thumbs_scrollbuttons="false" thumbs_scrollindicator="false" thumbs_loop="false" tooltips_buttons="false" tooltips_thumbs="false" tooltips_hotspots="false" tooltips_mapspots="false" deeplinking="false" loadscene_flags="MERGE" loadscene_blend="OPENBLEND(0.5, 0.0, 0.75, 0.05, linear)" loadscene_blend_prev="SLIDEBLEND(0.5, 180, 0.75, linear)" loadscene_blend_next="SLIDEBLEND(0.5,   0, 0.75, linear)" loadingtext="" layout_width="100%" layout_maxwidth="814" controlbar_width="-24" controlbar_height="40" controlbar_offset="20" controlbar_offset_closed="-40" controlbar_overlap.no-fractionalscaling="10" controlbar_overlap.fractionalscaling="0" design_skin_images="vtourskin.png" design_bgcolor="0x2D3E50" design_bgalpha="0.8" design_bgborder="0" design_bgroundedge="1" design_bgshadow="0 4 10 0x000000 0.3" design_thumbborder_bgborder="3 0xFFFFFF 1.0" design_thumbborder_padding="2" design_thumbborder_bgroundedge="0" design_text_css="color:#FFFFFF; font-family:Arial;" design_text_shadow="1"/>
+
+	<!--
+	    For an alternative skin design either change the <skin_settings> values 
+	    from above or optionally include one of the predefined designs from below.
+	-->
+	<!-- <include url="skin/vtourskin_design_flat_light.xml"  /> -->
+	<include url="skin/vtourskin_design_glass.xml"/>
+	<!-- <include url="skin/vtourskin_design_ultra_light.xml" /> -->
+	<!-- <include url="skin/vtourskin_design_117.xml"         /> -->
+	<!-- <include url="skin/vtourskin_design_117round.xml"    /> -->
+	<!-- <include url="skin/vtourskin_design_black.xml"       /> -->
+
+	<plugin name="toolbox" url="toolbox/toolboxV2.js" keep="true" preload="true" poly_bgcolor="0x336699" dot_color="0xffff00" dot_size="12" active_dot_color="0x00ff00" active_dot_size="12" keycode_to_home="77" keycode_to_activate="84" keycode_to_log="76" keycode_to_numbers="78" keycode_to_distorted="72" keycode_to_poly="80" keycode_to_grid="71" keycode_to_stickies="74" keycode_to_colorpicker="75" keycode_to_info="73" decimals_for_numbers="3" decimals_for_dhe="2" basecolor_for_colorpicker="0xff0000"/>
+
+		<style name="popup" type="text" autoalpha="true" alpha="1"/>
+	
+<action name="showInfoHover">
+	if(%1,
+		def(linkedScene, string, get(hotspot[get(name)].linkedscene));  // Thay thế bằng giá trị thực tế
+
+		<!-- Gán giá trị cho imageSrc từ thumbUrl của cảnh đã liên kết -->
+		def(imageSrc, string, get(scene[get(linkedScene)].thumbUrl));
+		
+		<!-- Kiểm tra giá trị của imageSrc -->
+		trace(imageSrc);  // In ra giá trị của imageSrc để kiểm tra
+		
+		<!-- Tạo nội dung HTML -->
+		def(htmlContent, string,
+			calc('<div style="display:flex; align-items:center; background-color:#F9FAFB; border-radius:10px; box-shadow:0 4px 8px rgba(0, 0, 0, 0.1); padding:15px; max-width:500px; margin:auto; font-family:Arial, sans-serif;">' +
+			'<img src="' + imageSrc + '" style="width:100px;height:auto;border-radius:8px;margin-right:15px;"/>' +
+			'<div style="display:flex; flex-direction:column;">' +
+			'<div style="font-size:18px; font-weight:bold; color:#333; margin-bottom:5px;"> %2</div>' +
+			'<div style="font-size:14px; color:#666; line-height:1.5;">Đây là văn bản mô tả chi tiết </div>' +
+			'</div>' +
+			'</div>')
+			);
+			addhotspot(popup); 
+			copy(pu, hotspot[popup]); 
+			pu.loadstyle(popup);
+			set(pu, ath=calc(hotspot[get(name)].ath), atv=calc(hotspot[get(name)].atv), ox=0, oy=-100); 
+			set(pu.html, get(htmlContent)); 
+			tween(pu.alpha, 1);
+		,
+			tween(pu.alpha, 0,,,set(pu.html, ''));
+	);
+</action>
+
+ 
+
+<action name="showInfoClick"> 
+	
+
+		def(displayInfo, string,
+		 calc('
+		 <div style="display: flex; flex-direction: column; align-items: flex-start; padding:20px">
+			 <div onclick="krpano.call(\'close\')" style="position:absolute; top:10px; right:10px; cursor:pointer; font-size:18px; font-weight:bold; color:#FF0000;">
+				×
+			</div>
+			<h1 style="font-size:20px; color:#333; margin-bottom:20px;">Thông Tin Chi Tiết</h1>
+			
+			<div style="font-size:14px; margin-bottom:20px;">%2</div>
+			
+			<div style="font-size:14px; margin-bottom:20px;">%3</div>
+			
+			<div style="font-size:14px; margin-bottom:20px;">%4</div>
+			
+			<label style="font-size:16px; margin-bottom:10px;">Ghi chú:</label>
+			<div style="font-size:14px;">Đây là ghi chú chi tiết về người dùng.</div>
+		</div>'));
+
+		
+		// Add and configure the hotspot
+		addhotspot(popup); 
+		copy(pu, hotspot[popup]); 
+		pu.loadstyle(popup);
+		set(pu, ath=calc(hotspot[get(name)].ath), atv=calc(hotspot[get(name)].atv), ox=0, oy=0);
+		// Set HTML content with dynamic 'test' value
+		set(pu.html, get(displayInfo));
+		// Show the hotspot
+		tween(pu.alpha, 1);
+
+</action> 
+
+	<scene name="scene_KCN-231_1724559193267_360Image1" title="KCN-231_1724559193267_360Image1" onstart="" thumburl="panos/KCN-231_1724559193267_360Image1.tiles/thumb.jpg" lat="" lng="" alt="" heading="">
+		<!-- <hotspot name="newhs_1" onclick="loadScene(scene_KCN-231_1724559193268_360image2)"
+		>
+			<point ath="-39.69553330278575" atv="-7.42086871406623" />
+			<point ath="-15.013325028807799" atv="-6.23638979247658" />
+			<point ath="-16.888906632983264" atv="17.27812543657331" />
+			<point ath="-39.330031760722534" atv="12.195140739426966" />
+		</hotspot> -->
+
+		<control bouncinglimits="calc:image.cube ? true : false"/>
+
+		<view hlookat="0.000" vlookat="0.000" fovtype="MFOV" fov="120.000" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto"/>
+
+		<preview url="panos/KCN-231_1724559193267_360Image1.tiles/preview.jpg"/>
+
+		<image>
+			<cube url="panos/KCN-231_1724559193267_360Image1.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024"/>
+		</image>
+
+		<hotspot name="hotspot1" ath="12.338" atv="-9.193" style="skin_hotspotstyle_map" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3"/>
+		<hotspot name="hotspot2" style="polygon_hotspotstyle" linkedscene="scene_KCN-231_1724559193268_360image2" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);">
+			<point ath="-39.69553330278575" atv="-7.42086871406623"/>
+			<point ath="-15.013325028807799" atv="-6.23638979247658"/>
+			<point ath="-16.888906632983264" atv="17.27812543657331"/>
+			<point ath="-39.330031760722534" atv="12.195140739426966"/>
+		</hotspot>
+		<hotspot name="hotspot4" onclick="loadScene(scene_KCN-231_1724559193268_360image3)">
+			<point ath="51.075779893458844" atv="-7.604928558450422"/>
+			<point ath="42.97839099046951" atv="7.38846679540104"/>
+			<point ath="61.437626071451746" atv="13.46492988649794"/>
+		</hotspot>
+		<hotspot name="qweqwe1" style="skin_hotspotstyle" ath="1.8972487777792253" atv="-17.658267188948145" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'yuqeyuqwye');" onout="showInfoHover(false);"/>
+	<hotspot name="qweqwe12" style="skin_hotspotstyle" ath="-5.378874736678881" atv="-19.65603870305122" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);"/>
+	<hotspot name="qweqwe1223" onclick="skin_loadscene(scene_KCN-231_1724559193268_360image3,OPENBLEND(0.5, 0.0, 0.75, 0.05, linear));trace('ádsa')" linkedScene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);">
+		<point ath="-89.63744125870943" atv="-3.9874260931900407"/><point ath="-89.1681237108919" atv="8.109247193007986"/><point ath="-70.34174821153545" atv="2.009428684741371"/>
+	</hotspot>
+<hotspot name="sadsa" style="skin_hotspotstyle" ath="94.52181846361574" atv="-0.34380714781423166" use3dtransition="true" linkedscene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);"/>
+<hotspot name="sadsa1" style="polygon_hotspotstyle" linkedscene="scene_KCN-231_1724559193268_360image3" onhover="showInfoHover(true, 'quang123');" onout="showInfoHover(false);"><point ath="-161.93238567670278" atv="-5.645408202155757"/><point ath="-162.3023721846136" atv="6.205923222343907"/><point ath="-146.26544067514376" atv="6.8529705781504875"/><point ath="-146.0585605458947" atv="-5.865434891878612"/></hotspot></scene>
+
+	<scene name="scene_KCN-231_1724559193268_360image2" title="KCN-231_1724559193268_360image2" onstart="" thumburl="panos/KCN-231_1724559193268_360image2.tiles/thumb.jpg" lat="" lng="" alt="" heading="">
+
+		<control bouncinglimits="calc:image.cube ? true : false"/>
+
+		<view hlookat="0.0" vlookat="0.0" fovtype="MFOV" fov="120" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto"/>
+
+		<preview url="panos/KCN-231_1724559193268_360image2.tiles/preview.jpg"/>
+
+		<image hfov="1.00" vfov="0.365400" voffset="0.00">
+			<flat url="panos/KCN-231_1724559193268_360image2.tiles/l%l/%0v/l%l_%0v_%0h.jpg" multires="512,2560x936,5120x1872"/>
+		</image>
+
+	</scene>
+
+	<scene name="scene_KCN-231_1724559193268_360image3" title="KCN-231_1724559193268_360image3" onstart="" thumburl="panos/KCN-231_1724559193268_360image3.tiles/thumb.jpg" lat="" lng="" alt="" heading="">
+
+		<control bouncinglimits="calc:image.cube ? true : false"/>
+
+		<view hlookat="0.000" vlookat="0.000" fovtype="MFOV" fov="120.000" maxpixelzoom="2.0" fovmin="70" fovmax="140" limitview="auto"/>
+
+		<preview url="panos/KCN-231_1724559193268_360image3.tiles/preview.jpg"/>
+
+		<image>
+			<cube url="panos/KCN-231_1724559193268_360image3.tiles/%s/l%l/%v/l%l_%s_%v_%h.jpg" multires="512,1024"/>
+		</image>
+
+		<hotspot name="hotspot3" ath="-25.495019845822412" atv="-15.000309077485213" style="skin_hotspotstyle_map" use3dtransition="true" linkedscene="scene_KCN-231_1724559193267_360Image1"/>
+	</scene>
+
+
+</krpano>

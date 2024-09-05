@@ -1,0 +1,244 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+	<title>krpano - KCN-231_1724559193268_360image3</title>
+	<meta name="viewport"
+		content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, viewport-fit=cover" />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+	<meta http-equiv="x-ua-compatible" content="IE=edge" />
+	<style>
+		html {
+			height: 100%;
+		}
+
+		body {
+			height: 100%;
+			overflow: hidden;
+			margin: 0;
+			padding: 0;
+			font-family: Arial, Helvetica, sans-serif;
+			font-size: 16px;
+			color: #FFFFFF;
+			background-color: #000000;
+		}
+
+		#editForm {
+			display: none;
+			color: #000000;
+			border: 5px solid #ccc;
+			padding: 20px;
+			width: 500px;
+			margin: auto;
+
+			background-color: #f9f9f9;
+			z-index: 999999999999;
+			top: 0;
+			position: fixed;
+		}
+	</style>
+</head>
+
+<body>
+
+	<div id="editForm">
+		<button id="close">Close</button>
+		<h2>Edit Form</h2>
+		<label for="editInput">KCN name:</label>
+		<input type="text" disabled id="industrialParkCode"><br><br>
+		<label for="editInput">Hotspot name:</label>
+		<input type="text" id="hotspotName" /><br><br>
+		<label for="editInput">Hotspot type:</label>
+		<select id="hotspotType" name="hotspotType">
+			<option value="MARK">MARK</option>
+			<option value="POLYGONAL">polygonal</option>
+		</select>
+		<br><br>
+		<label for="editInput">scene name:</label>
+		<input type="text" disabled id="kcnName" style="width: 60%;"><br><br>
+		<label>Point</label>
+		<div id="listPoint">
+
+		</div>
+		<br>
+		<label>Action</label>
+		<div id="action">
+			<button id="clickAction">Action click</button><br>
+			<div id="clickForm" hidden><label>Type</label>
+				<select id="actionClickType" name="actionClickType" onchange="handleSelectChange()">
+					<option value="SHOW_INFO">Show info</option><!-- 3 loai: vung dat, vat tu, khac -->
+					<option value="LOAD_SCENE">Load scene</option><!-- anh dich den scene,scene name, name -->
+				</select></br>
+				<div id="showFormClick"></div>
+
+			</div><br>
+
+			<button type="submit" onclick="SendAddHotspot()">Save</button>
+		</div>
+	</div>
+	<script src="tour.js"></script>
+
+
+
+	<div id="pano" style="width:100%;height:100%;">
+		<noscript>
+			<table style="width:100%;height:100%;">
+				<tr style="vertical-align:middle;">
+					<td>
+						<div style="text-align:center;">ERROR:<br /><br />Javascript not activated<br /><br /></div>
+					</td>
+				</tr>
+			</table>
+		</noscript>
+		<script>
+			let krpano;
+			embedpano({
+				swf: "krpano.swf",
+				xml: "tour.xml",
+				target: "pano",
+				html5: "only",
+				passQueryParameters: true,
+				onready: function (instance) {
+					krpano = instance;
+					krpano.call("openeditor();");
+
+				},consolelog:'true'
+			});	</script>
+	</div>
+	<script>
+		let pointList;
+		document.addEventListener('keydown', function (event) {
+			let preTagCheck = document.getElementsByTagName('pre')[0];
+			let divsCheck = preTagCheck.getElementsByTagName('div')[4];
+			if (event.code === 'Space' && divsCheck != undefined) {  // Kiểm tra nếu phím Space được nhấn
+				event.preventDefault(); // Ngăn chặn hành động mặc định của phím Space (cuộn trang)
+				document.getElementById('editForm').style.display = 'block'; // Hiển thị form
+				let currentScene = krpano.get("scene[get(xml.scene)]");
+
+				document.getElementById('kcnName').value = "scene_"+currentScene.title;
+				document.getElementById('industrialParkCode').value = currentScene.title.substring(0, 7);
+				// getHotspotData("hotspot2");
+				pointList = getPoint(divsCheck);
+				console.log(pointList);
+				let output = '';
+				pointList.forEach((point, index) => {
+					output += `point ${index + 1} ath=${point.ath} atv=${point.atv}<br>`;
+				});
+
+				document.getElementById("clickAction").addEventListener('click', () => {
+					document.getElementById("clickForm").hidden = false;
+					handleSelectChange();
+				})
+
+				document.getElementById('listPoint').innerHTML = output;
+
+			}
+		});
+		document.getElementById("close").addEventListener('click', () => {
+			document.getElementById("editForm").style.display = "none";
+		});
+
+		function SendAddHotspot() {
+			const myHeaders = new Headers();
+			myHeaders.append("Content-Type", "application/json");
+
+			const raw = getInputData();
+
+			console.log(raw);
+			
+			const requestOptions = {
+				method: "POST",
+				headers: myHeaders,
+				body: raw,
+				redirect: "follow"
+			};
+
+			fetch("http://localhost:8081/api/hotspot/create", requestOptions)
+				.then((response) => response.text())
+				.then((result) => console.log(result))
+				.catch((error) => console.error(error));
+		}
+		function getInputData() {
+			var clickType = document.getElementById("actionClickType").value;
+			var infoName;
+			if(clickType==="LOAD_SCENE"){
+				infoName=document.getElementById("sceneNameDisplay").value;
+			}else if(clickType==="SHOW_INFO"){
+				infoName=document.getElementById("infoAsset").value;
+			}
+
+			const x = JSON.stringify({
+				"industrialParkCode": document.getElementById("industrialParkCode").value,
+				"hotspotType": document.getElementById("hotspotType").value,
+				"hotspotName": document.getElementById("hotspotName").value,
+				"icon": null,
+				"scene": document.getElementById("kcnName").value,
+				"points": 
+					pointList
+				,
+				"action": {
+					"clickType": clickType,//load_scene,show_info
+					"showInfoType": document.getElementById("typeInfo")?.value || null,//area,asset,other
+					"infoName": infoName,//ls name hover, show_info other name,
+					"sceneName": "scene_KCN-231_1724559193268_360image3",  // n 
+					"infoDetail": document.getElementById("infoOther")?.value || null, //show_info other des infoOther
+					"linkedCode": document.getElementById("infoAsset")?.value || null// show_info area asset
+				}
+			});
+			return x;
+		}
+		function handleSelectChange() {
+			var selectElement = document.getElementById("actionClickType");
+			var selectedValue = selectElement.value;
+			var showFormClick = document.getElementById("showFormClick");
+			var innerForm = ``;
+			if (selectedValue === "SHOW_INFO") {
+				// Handle "Show info" option
+				//vung dat, vat tu, khac
+				innerForm = `
+				<select id="typeInfo">
+					<option value="AREA">Vung dat</option>
+					<option value="ASSET">Vat tu</option>
+					<option value="OTHER">Other</option>
+				</select></br>
+				<label>Info</label>
+				<input type="text" id="infoAsset"/><br>
+				`;
+
+			} else if (selectedValue === "LOAD_SCENE") {
+				innerForm = `
+				<br>
+					<label>Scene name</label>
+					<input type="text" id="sceneName"/><br>
+					<label>Name</label>
+					<input type="text" id="sceneNameDisplay"/><br>
+				`;
+			}
+			showFormClick.innerHTML = innerForm;
+			// Add more logic as needed
+		}
+		function getPoint(infoDiv) {
+			const htmlContent = infoDiv.innerHTML;
+
+			// Use a regular expression to find all <point> elements and extract their attributes
+			const pointRegex = /&lt;point ath="([^"]+)" atv="([^"]+)" \/&gt;/g;
+			let match;
+			const points = [];
+
+			while ((match = pointRegex.exec(htmlContent)) !== null) {
+				// match[1] contains the ath value and match[2] contains the atv value
+				points.push({ ath: match[1], atv: match[2] });
+			}
+
+			return points;
+		}
+
+	</script>
+
+
+</body>
+
+</html>

@@ -37,14 +37,18 @@
 			'<img src="' + imageSrc + '" style="width:100px;height:auto;border-radius:8px;margin-right:15px;"/>' +
 			'<div style="display:flex; flex-direction:column;">' +
 			'<div style="font-size:18px; font-weight:bold; color:#333; margin-bottom:5px;"> %2</div>' +
-			'<div style="font-size:14px; color:#666; line-height:1.5;">Đây là văn bản mô tả chi tiết </div>' +
+			'<div style="font-size:14px; color:#666; line-height:1.5;">Khám phá </div>' +
 			'</div>' +
 			'</div>')
 			);
 			addhotspot(popup); 
 			copy(pu, hotspot[popup]); 
 			pu.loadstyle(popup);
-			set(pu, ath=calc(hotspot[get(name)].ath), atv=calc(hotspot[get(name)].atv), ox=0, oy=-100); 
+			
+			if(hotspot[get(name)].ath,
+				set(pu, ath=calc(hotspot[get(name)].ath), atv=calc(hotspot[get(name)].atv), ox=0, oy=-100); 
+			, set(pu, ath=calc(hotspot[get(name)].point[0].ath), atv=calc(hotspot[get(name)].point[0].atv), ox=0, oy=-100); 
+			);
 			set(pu.html, get(htmlContent)); 
 			tween(pu.alpha, 1);
 		,

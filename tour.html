@@ -26,25 +26,47 @@
 			background-color: #000000;
 		}
 
-		#editForm {
+		.editForm {
 			display: none;
 			color: #000000;
 			border: 5px solid #ccc;
 			padding: 20px;
 			width: 500px;
-			margin: auto;
-
+			margin-left: 300px;
+			justify-content: center;
+            align-items: center;
 			background-color: #f9f9f9;
 			z-index: 999999999999;
 			top: 0;
 			position: fixed;
+		}
+
+		.point {
+			z-index: 999999999999;
+			top: 0;
+			position: fixed;
+			background-color: #53d1a9;
+			color: #000000;
+			padding: 5px;
+			width: 10%;
+			height: 100%;
+
+		}
+
+		#krpanoDIV {
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: auto;
+			width: 80%;
+			height: 100%;
 		}
 	</style>
 </head>
 
 <body>
 
-	<div id="editForm">
+	<div id="editForm" class="editForm">
 		<button id="close">Close</button>
 		<h2>Edit Form</h2>
 		<label for="editInput">KCN name:</label>
@@ -79,11 +101,34 @@
 			<button type="submit" onclick="SendAddHotspot()">Save</button>
 		</div>
 	</div>
+
+	<div class="point">
+		<span><b><u>mouse</u></b></span><br>
+		<span>x=</span><span id="mouse_x"></span><br>
+		<span>y=</span><span id="mouse_y"></span><br>
+		<span>ath=</span><span id="mouse_ath"></span><br>
+		<span>atv=</span><span id="mouse_atv"></span><br>
+		<span>scene=</span><span id="scene"></span><br>
+		<div>
+			<h1>Function</h1>
+			<select id="addType">
+				<option value="mark">Mark</option>
+				<option value="polygonal">Polygonal</option>
+			</select>
+			</br></br>
+
+			<button onclick="handleAddHotspot('add')">Add hotspot</button>
+
+			<button onclick="handleAddHotspot('remove')">Remove previous hotspot</button>
+
+		</div>
+	</div>
+
 	<script src="tour.js"></script>
 
 
 
-	<div id="pano" style="width:100%;height:100%;">
+	<div id="krpanoDIV">
 		<noscript>
 			<table style="width:100%;height:100%;">
 				<tr style="vertical-align:middle;">
@@ -93,36 +138,100 @@
 				</tr>
 			</table>
 		</noscript>
-		<script>
-			let krpano;
-			embedpano({
-				swf: "krpano.swf",
-				xml: "tour.xml",
-				target: "pano",
-				html5: "only",
-				passQueryParameters: true,
-				onready: function (instance) {
-					krpano = instance;
-					krpano.call("openeditor();");
-
-				},consolelog:'true'
-			});	</script>
 	</div>
+
 	<script>
+		let krpano;
+		embedpano({
+			swf: "krpano.swf",
+			id: "krpanoSWFObject",
+			xml: "tour.xml",
+			target: "krpanoDIV",
+			html5: "only",
+			consolelog: 'true',
+			passQueryParameters: true,
+			onready: function (instance) {
+				krpano = instance;
+
+			},
+		});
+
+		function getlookat() {
+			if (krpano && krpano.get) // it can take some time until krpano is loaded and ready
+			{
+				krpano.call("screentosphere(mouse.x, mouse.y, mouseath, mouseatv); js( showmouseinfo() );");
+			}
+		}
+		function showmouseinfo() {
+			var krpano = document.getElementById("krpanoSWFObject");
+
+			var mouse_at_x = krpano.get("mouse.x");
+			var mouse_at_y = krpano.get("mouse.y");
+			var mouse_at_h = krpano.get("mouseath");
+			var mouse_at_v = krpano.get("mouseatv");
+
+			document.getElementById("mouse_x").innerHTML = mouse_at_x + "px";
+			document.getElementById("mouse_y").innerHTML = mouse_at_y + "px";
+			document.getElementById("mouse_ath").innerHTML = mouse_at_h.toFixed(2) + "°";
+			document.getElementById("mouse_atv").innerHTML = mouse_at_v.toFixed(2) + "°";
+		}
+		// update mouse info 30 times per second
+		var lookat_interval = setInterval('getlookat()', 1000.0 / 10.0);
+
+
+		function handleAddHotspot(type) {
+			if (type === "add") {
+				document.getElementById("krpanoDIV").addEventListener('click', addhotspotonkarpano)
+				krpano.call("set(hotspot[addHotspot].visible, true);");
+			} else if (type === "remove") {
+				document.getElementById("krpanoDIV").removeEventListener('click',addhotspotonkarpano)
+				krpano.call("set(hotspot[addHotspot].visible, false);");
+			}
+		}
+
+		function showAddForm(){
+
+		}
+
+		function addhotspotonkarpano() {
+
+
+			var mouse_at_h = krpano.get("mouseath");
+			var mouse_at_v = krpano.get("mouseatv");
+
+			var spotname = "addHotspot";
+
+			var str = "";
+			str += "addhotspot(" + spotname + ");";
+			str += "set(hotspot[" + spotname + "].url,skin/vtourskin_hotspot.png);";
+			str += "set(hotspot[" + spotname + "].ath," + mouse_at_h + ");";
+			str += "set(hotspot[" + spotname + "].atv," + mouse_at_v + ");";
+			str += "set(hotspot[" + spotname + "].scale,0.5);";
+			str += "set(hotspot[" + spotname + "].zoom,true);";
+			// str += "set(hotspot[" + spotname + "].onhover,showInfoHover(true,'asd'));";
+			// str += "set(hotspot[" + spotname + "].onloaded, do_crop_animation(128,112,4));";
+			console.log(str);
+			krpano.call(str);
+			// Get the name of the current scene
+		}
 		let pointList;
-		document.addEventListener('keydown', function (event) {
+		document.addEventListener('keydown', async function (event) {
 			let preTagCheck = document.getElementsByTagName('pre')[0];
 			let divsCheck = preTagCheck.getElementsByTagName('div')[4];
 			if (event.code === 'Space' && divsCheck != undefined) {  // Kiểm tra nếu phím Space được nhấn
 				event.preventDefault(); // Ngăn chặn hành động mặc định của phím Space (cuộn trang)
+
 				document.getElementById('editForm').style.display = 'block'; // Hiển thị form
 				let currentScene = krpano.get("scene[get(xml.scene)]");
 
-				document.getElementById('kcnName').value = "scene_"+currentScene.title;
+				document.getElementById('kcnName').value = currentScene.name;
 				document.getElementById('industrialParkCode').value = currentScene.title.substring(0, 7);
 				// getHotspotData("hotspot2");
 				pointList = getPoint(divsCheck);
 				console.log(pointList);
+				if (pointList.length == 0) {
+					pointList = getPoint(preTagCheck.getElementsByTagName('div')[5]);
+				}
 				let output = '';
 				pointList.forEach((point, index) => {
 					output += `point ${index + 1} ath=${point.ath} atv=${point.atv}<br>`;
@@ -141,6 +250,10 @@
 			document.getElementById("editForm").style.display = "none";
 		});
 
+		function sleep(ms) {
+			return new Promise(resolve => setTimeout(resolve, ms));
+		}
+
 		function SendAddHotspot() {
 			const myHeaders = new Headers();
 			myHeaders.append("Content-Type", "application/json");
@@ -148,7 +261,7 @@
 			const raw = getInputData();
 
 			console.log(raw);
-			
+
 			const requestOptions = {
 				method: "POST",
 				headers: myHeaders,
@@ -164,10 +277,10 @@
 		function getInputData() {
 			var clickType = document.getElementById("actionClickType").value;
 			var infoName;
-			if(clickType==="LOAD_SCENE"){
-				infoName=document.getElementById("sceneNameDisplay").value;
-			}else if(clickType==="SHOW_INFO"){
-				infoName=document.getElementById("infoAsset").value;
+			if (clickType === "LOAD_SCENE") {
+				infoName = document.getElementById("sceneNameDisplay").value;
+			} else if (clickType === "SHOW_INFO") {
+				infoName = document.getElementById("infoAsset").value;
 			}
 
 			const x = JSON.stringify({
@@ -176,7 +289,7 @@
 				"hotspotName": document.getElementById("hotspotName").value,
 				"icon": null,
 				"scene": document.getElementById("kcnName").value,
-				"points": 
+				"points":
 					pointList
 				,
 				"action": {
@@ -190,6 +303,7 @@
 			});
 			return x;
 		}
+
 		function handleSelectChange() {
 			var selectElement = document.getElementById("actionClickType");
 			var selectedValue = selectElement.value;
